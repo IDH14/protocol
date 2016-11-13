@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Protocol by IDH14</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Protocol</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/IDH14/protocol">View the Project on GitHub <small>IDH14/protocol</small></a></p>
+
+        <p>Beschikbare methoden:</p>
+        <ul>
+          <li><a href="#list">LIST</a></li>
+          <li><a href="#get">GET</a></li>
+          <li><a href="#put">PUT</a></li>
+          <li><a href="#delete">DELETE</a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>
+<a id="protocol-beschrijving-idh14" class="anchor" href="#protocol-beschrijving-idh14" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Protocol beschrijving IDH14</h3>
+
+        <h3>Algemene informatie: </h3>        
+        
+<ul>
+<li>Alles is UFT-8</li>
+<li>Elke response in JSON formaat. De enige request die hiervan afwijkt is de GET indien het bestand bestaat, zie <a href="#get">GET</a> voor response voorbeelden.</li>
+</ul>
+
+
+
+<h3>
+<a id="list" class="anchor" href="#list" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>LIST</h3>
+
+<p>Ophalen van alle bestanden die op de server staan. Je krijgt als response, bestandsnaam, laatste tijd van wijziging dit is een unix timestamp en als laatste een checksum van het bestand. Dit is een SHA1 gegeneerde code. De response is altijd in JSON formaat.</p>
+
+<h4>
+<a id="voorbeeld-request" class="anchor" href="#voorbeeld-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
+
+<pre><code>LIST idh14sync/1.0
+</code></pre>
+
+<h4>
+<a id="voorbeeld-response" class="anchor" href="#voorbeeld-response" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld response</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+
+{
+    "files": [
+        {
+            "name": "Bestandsnaam_1.pdf",
+            "time_last_modified": 1479060603,
+            "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8"
+        }
+    ]
+}
+</code></pre>
+
+<h3>
+<a id="get" class="anchor" href="#get" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GET</h3>
+
+<p>Downloaden van een specifiek bestand. Het bestand wordt als binary terug gestuurd.</p>
+
+<h4>
+<a id="voorbeeld-request-1" class="anchor" href="#voorbeeld-request-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
+
+<pre><code>GET idh14sync/1.0
+filename: Bestandsnaam_1.pdf
+</code></pre>
+
+<h4>
+<a id="voorbeeld-response-succes" class="anchor" href="#voorbeeld-response-succes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld response succes:</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+filename: Bestandsnaam_1.pdf
+
+{binary data}
+</code></pre>
+
+<h4>
+<a id="voorbeeld-response-error" class="anchor" href="#voorbeeld-response-error" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld response error:</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+filename: Bestandsnaam_1.pdf
+
+{
+    "error": "Bestand bestaat niet."
+}
+</code></pre>
+
+<h3>
+<a id="put" class="anchor" href="#put" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PUT</h3>
+
+<p>Geeft de mogelijkheid voor het toevoegen/updaten van een bestand. </p>
+
+<h4>
+<a id="voorbeeld-request-2" class="anchor" href="#voorbeeld-request-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
+
+<pre><code>PUT idh14sync/1.0
+filename: Bestandsnaam_1.pdf
+length: 2132434
+checksum: 8578201cf22b83bdaef44e1c5a5dc2e764218aa8
+
+{binary data}
+</code></pre>
+
+<h4>
+<a id="voorbeeld-request-succes" class="anchor" href="#voorbeeld-request-succes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request succes:</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+
+{
+    "success": true
+}
+</code></pre>
+
+<h4>
+<a id="voorbeeld-request-error" class="anchor" href="#voorbeeld-request-error" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request error:</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+
+{
+    "error": "Je bestand kon niet worden gesynchroniseerd."
+}
+</code></pre>
+
+<h3>
+<a id="delete" class="anchor" href="#delete" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DELETE</h3>
+
+<p>Geeft de mogelijkheid tot het verwijderen van het bestand op de server.</p>
+
+<h4>
+<a id="voorbeeld-request-3" class="anchor" href="#voorbeeld-request-3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
+
+<pre><code>DELETE idh14sync/1.0
+filename: Bestandsnaam_1.pdf
+</code></pre>
+
+<h4>
+<a id="voorbeeld-request-succes-1" class="anchor" href="#voorbeeld-request-succes-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request succes:</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+
+{
+    "success": "Bestand succesvol verwijderd"
+}
+</code></pre>
+
+<h4>
+<a id="voorbeeld-request-error-1" class="anchor" href="#voorbeeld-request-error-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request error:</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+
+{
+    "error": "Bestand kon niet verwijderd worden. Probeer opnieuw"
+}
+</code></pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/IDH14">IDH14</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
