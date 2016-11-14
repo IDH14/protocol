@@ -27,6 +27,14 @@
           <li><a href="#put">PUT</a></li>
           <li><a href="#delete">DELETE</a></li>
         </ul>
+		<br><br>
+        <p>Beschikbare statussen:</p>
+        <ul>
+          <li><a href="#200">200</a></li>
+          <li><a href="#400">400</a></li>
+          <li><a href="#404">404</a></li>
+          <li><a href="#412">412</a></li>
+        </ul>
       </header>
       <section>
         <h3>
@@ -58,10 +66,10 @@
 <pre><code>RESPONSE idh14sync/1.0
 
 {
+    "status" : 200,
     "files": [
         {
-            "name": "Bestandsnaam_1.pdf",
-            "time_last_modified": 1479060603,
+            "filename": "Bestandsnaam_1.pdf",
             "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8"
         }
     ]
@@ -77,28 +85,32 @@
 <a id="voorbeeld-request-1" class="anchor" href="#voorbeeld-request-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
 
 <pre><code>GET idh14sync/1.0
-filename: Bestandsnaam_1.pdf
+
+{
+    "filename": "Bestandsnaam_1.pdf"
+}
 </code></pre>
 
 <h4>
 <a id="voorbeeld-response-succes" class="anchor" href="#voorbeeld-response-succes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld response succes:</h4>
 
 <pre><code>RESPONSE idh14sync/1.0
-filename: Bestandsnaam_1.pdf
-length: 2132434
-checksum: 8578201cf22b83bdaef44e1c5a5dc2e764218aa8
 
-{binary data}
+{
+    "filename": "foto1.jpg",
+    "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8",
+    "content": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="
+}
 </code></pre>
 
 <h4>
 <a id="voorbeeld-response-error" class="anchor" href="#voorbeeld-response-error" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld response error:</h4>
 
 <pre><code>RESPONSE idh14sync/1.0
-filename: Bestandsnaam_1.pdf
 
 {
-    "error": "Bestand bestaat niet."
+    "status": 404,
+    "filename": "Bestandsnaam_1.pdf"
 }
 </code></pre>
 
@@ -111,20 +123,28 @@ filename: Bestandsnaam_1.pdf
 <a id="voorbeeld-request-2" class="anchor" href="#voorbeeld-request-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
 
 <pre><code>PUT idh14sync/1.0
-filename: Bestandsnaam_1.pdf
-length: 2132434
-checksum: 8578201cf22b83bdaef44e1c5a5dc2e764218aa8
 
-{binary data}
+{
+    "filename": "Bestandsnaam_1.pdf"
+    "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8",
+    "original_checksum": "9dab297e98d34ad346d3df6609521f0dc92cf9d2",
+    "content": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="	
+}
 </code></pre>
 
+<i>Bij het uploaden van een gewijzigd bestand wordt de originele checksum meegestuurd.
+Indien de checksum van het bestand op de server hiermee overeenkomt, wordt het bestand op de server overschreven.
+Als dat niet het geval is, dan wordt het request geweigerd met een status 412.
+De client dient dan een bestand te maken genaamd filename_1.ext. <br>
+De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voordat hij wijzigingen naar de server stuurt. </i>
+<br><br>
 <h4>
 <a id="voorbeeld-request-succes" class="anchor" href="#voorbeeld-request-succes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request succes:</h4>
 
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "success": true
+    "status" : 200
 }
 </code></pre>
 
@@ -134,7 +154,7 @@ checksum: 8578201cf22b83bdaef44e1c5a5dc2e764218aa8
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "error": "Je bestand kon niet worden gesynchroniseerd."
+    "status" : 401
 }
 </code></pre>
 
@@ -147,7 +167,10 @@ checksum: 8578201cf22b83bdaef44e1c5a5dc2e764218aa8
 <a id="voorbeeld-request-3" class="anchor" href="#voorbeeld-request-3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
 
 <pre><code>DELETE idh14sync/1.0
-filename: Bestandsnaam_1.pdf
+
+{
+    "filename": "Bestandsnaam_1.pdf"
+}
 </code></pre>
 
 <h4>
@@ -156,7 +179,7 @@ filename: Bestandsnaam_1.pdf
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "success": "Bestand succesvol verwijderd"
+    "status" : 200
 }
 </code></pre>
 
@@ -166,9 +189,27 @@ filename: Bestandsnaam_1.pdf
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "error": "Bestand kon niet verwijderd worden. Probeer opnieuw"
+    "status" : 100
 }
 </code></pre>
+
+<br><br>
+<h3>Statuscodes</h3>
+<p>Er wordt gebruik gemaakt van de offici&euml;le HTTP-statuscodes. Deze zijn <a href="https://nl.wikipedia.org/wiki/Lijst_van_HTTP-statuscodes">hier</a> te vinden. Indien een code gebruikt gaat worden dient deze hier toegelicht te worden.</p>
+
+<h4><a name="200">200</a></h4>
+<p>Alles goed.</p>
+
+<h4><a name="400">400</a></h4>
+<p>???</p>
+
+<h4><a name="404">404</a></h4>
+<p>Niet gevonden.</p>
+
+<h4><a name="412">412</a></h4>
+<p>Bestand conflicteert. Upload met andere bestandsnaam.</p>
+
+
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/IDH14">IDH14</a></p>
