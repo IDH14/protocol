@@ -40,11 +40,17 @@
         <h3>
 <a id="protocol-beschrijving-idh14" class="anchor" href="#protocol-beschrijving-idh14" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Protocol beschrijving IDH14</h3>
 
-        <h3>Algemene informatie: </h3>        
-        
+        <h3>Algemene informatie: </h3>
+
 <ul>
 <li>Alles is UTF-8</li>
 <li>Elke response in JSON formaat. De enige request die hiervan afwijkt is de GET indien het bestand bestaat, zie <a href="#get">GET</a> voor response voorbeelden.</li>
+<li>Communicatie gaat via UTF8 encoded tekst over TCP sockets</li>
+<li>Checksums zijn <a href="http://onlinemd5.com/">SHA1</a> checksums op basis van bestand inhoud</li>
+<li>Berichten hebben een start regel, een witregel,en een json object.</li>
+<li> Wanneer je de openende en sluitende haakjes tegen elkaar uitspeelt kan je het begin en einde van de JSON bepalen: 0{ 1 { 2 {3 }2 }1 }0</li>
+<li>De server en client houden een lijst bij van de afgelopen bij hen bekende hashes </li>
+<li>Bij responses mag een message property worden meegegeven, dit is niet verplicht.</li>
 </ul>
 
 
@@ -58,6 +64,8 @@
 <a id="voorbeeld-request" class="anchor" href="#voorbeeld-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
 
 <pre><code>LIST idh14sync/1.0
+
+{}
 </code></pre>
 
 <h4>
@@ -79,7 +87,7 @@
 <h3>
 <a id="get" class="anchor" href="#get" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GET</h3>
 
-<p>Downloaden van een specifiek bestand. Het bestand wordt als binary terug gestuurd.</p>
+<p>Downloaden van een specifiek bestand. Het bestand wordt als base64 encoded binary data terug gestuurd.</p>
 
 <h4>
 <a id="voorbeeld-request-1" class="anchor" href="#voorbeeld-request-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request:</h4>
@@ -100,7 +108,7 @@
     "status" : 200,
     "filename": "foto1.jpg",
     "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8",
-    "content": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="
+    "content": "9j/4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="
 }
 </code></pre>
 
@@ -111,7 +119,8 @@
 
 {
     "status": 404,
-    "filename": "Bestandsnaam_1.pdf"
+    "filename": "Bestandsnaam_1.pdf",
+    "message" : "File not Found"
 }
 </code></pre>
 
@@ -129,7 +138,7 @@
     "filename": "Bestandsnaam_1.pdf"
     "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8",
     "original_checksum": "9dab297e98d34ad346d3df6609521f0dc92cf9d2",
-    "content": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="	
+    "content": "4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="
 }
 </code></pre>
 
@@ -146,6 +155,7 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 
 {
     "status" : 200
+    "message" : "File added."
 }
 </code></pre>
 
@@ -155,7 +165,8 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "status" : 401
+    "status" : 404,
+    "message" : "File not Found"
 }
 </code></pre>
 
@@ -170,7 +181,8 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 <pre><code>DELETE idh14sync/1.0
 
 {
-    "filename": "Bestandsnaam_1.pdf"
+    "filename": "Bestandsnaam_1.pdf",
+    "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8"
 }
 </code></pre>
 
@@ -180,7 +192,8 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "status" : 200
+    "status" : 200,
+    "message" : "File deleted"
 }
 </code></pre>
 
@@ -190,7 +203,8 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "status" : 100
+    "status" : 404,
+    "message" : "File not Found"
 }
 </code></pre>
 
@@ -218,6 +232,6 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    
+
   </body>
 </html>
