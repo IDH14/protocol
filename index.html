@@ -43,14 +43,33 @@
         <h3>Algemene informatie: </h3>
 
 <ul>
-<li>Alles is UTF-8</li>
+<li>Informatie die verstuurd wordt via het protocol dient de UTF-8 encoding te hebben</li>
 <li>Elke response in JSON formaat. De enige request die hiervan afwijkt is de GET indien het bestand bestaat, zie <a href="#get">GET</a> voor response voorbeelden.</li>
-<li>Communicatie gaat via UTF8 encoded tekst over TCP sockets</li>
+<li>Communicatie gaat via tekst over TCP sockets</li>
+<li><b>Bestandsnamen dienen base64-encoded te zijn, zodat een simpele interpretatie van JSON mogelijk is (het tellen van accolades)</b></li>
 <li>Checksums zijn <a href="http://onlinemd5.com/">SHA1</a> checksums op basis van bestand inhoud</li>
 <li>Berichten hebben een start regel, een witregel,en een json object.</li>
 <li> Wanneer je de openende en sluitende haakjes tegen elkaar uitspeelt kan je het begin en einde van de JSON bepalen: 0{ 1 { 2 {3 }2 }1 }0</li>
-<li>De server en client houden een lijst bij van de afgelopen bij hen bekende hashes </li>
-<li>Bij responses mag een message property worden meegegeven, dit is niet verplicht.</li>
+<li>Bij responses mag een message property worden meegegeven, dit is niet verplicht. Deze message dient in alle gevallen informatief te zijn en slechts een verduidelijking van de statuscode. Clients die de message negeren moeten aan de statuscode voldoende kunnen afleiden voor een juiste afhandeling.</li>
+<li>Versie-garantie</li>
+	<ul>
+		<li>Er is geen sprake van versienummers; deze dienen enkel ter uitleg van het protocol</li>
+		<li>Er mag nooit vertrouwd worden op datum/tijd informatie ter bepaling van versies</li>
+		<li>De client is verantwoordelijk voor het oplossen van conflicten</li>
+		<li>Een put-request voor een nieuwe versie (v2) bevat de hash van het originele bestand (v1) dat gewijzigd is</li>
+		<li>Dit bestand (v1) dient door de server aangeleverd te zijn</li>
+		<li>De server vergelijkt de hash van v1 met zijn huidige bestand</li>
+		<li>Als deze hashes overeenkomen wordt de PUT gehonoreerd</li>
+		<li>Indien een andere client (B) sneller is met v3, wordt de hash van v1 (client A) met v3 (client B) vergeleken</li>
+		<li>Aangezien deze hashes niet overeenkomen wordt de PUT-request geweigerd</li>
+		<li>Het is aan de client om zelf een manier te vinden om dit op te lossen. Een aantal opties zijn:
+			<ul>
+				<li>Iets toevoegen aan de bestandsnaam en als nieuw bestand aanbieden aan server</li>
+				<li>De wijzigingen van de server binnenhalen, mergen, en nieuwe PUT-request uitvoeren</li>
+			</ul>
+		</li>
+		</ul>
+	</ul>
 </ul>
 
 
@@ -77,8 +96,8 @@
     "status" : 200,
     "files": [
         {
-            "filename": "Bestandsnaam_1.pdf",
-            "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8"
+            "filename": "QmVzdGFuZHNuYWFtXzEucGRm",
+            "checksum": "4d2b60f114e1bbf93b657bd91333edbff7818833"
         }
     ]
 }
@@ -95,10 +114,9 @@
 <pre><code>GET idh14sync/1.0
 
 {
-    "filename": "Bestandsnaam_1.pdf"
+    "filename": "QmVzdGFuZHNuYWFtXzEucGRm"
 }
 </code></pre>
-
 <h4>
 <a id="voorbeeld-response-succes" class="anchor" href="#voorbeeld-response-succes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld response succes:</h4>
 
@@ -106,8 +124,8 @@
 
 {
     "status" : 200,
-    "filename": "foto1.jpg",
-    "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8",
+    "filename": "QmVzdGFuZHNuYWFtXzEucGRm",
+    "checksum": "4d2b60f114e1bbf93b657bd91333edbff7818833",
     "content": "9j/4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="
 }
 </code></pre>
@@ -118,9 +136,7 @@
 <pre><code>RESPONSE idh14sync/1.0
 
 {
-    "status": 404,
-    "filename": "Bestandsnaam_1.pdf",
-    "message" : "File not Found"
+    "status": 404
 }
 </code></pre>
 
@@ -135,9 +151,9 @@
 <pre><code>PUT idh14sync/1.0
 
 {
-    "filename": "Bestandsnaam_1.pdf"
-    "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8",
-    "original_checksum": "9dab297e98d34ad346d3df6609521f0dc92cf9d2",
+    "filename": "QmVzdGFuZHNuYWFtXzEucGRm"
+    "checksum": "8cef10cc5a3ef325dbf9ba0e5d7034120a6eb80d",
+    "original_checksum": "4d2b60f114e1bbf93b657bd91333edbff7818833",
     "content": "4AAQSkZJRgABAQEAtAC(...)xLWe6W8h/9k="
 }
 </code></pre>
@@ -181,10 +197,11 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 <pre><code>DELETE idh14sync/1.0
 
 {
-    "filename": "Bestandsnaam_1.pdf",
+    "filename": "QmVzdGFuZHNuYWFtXzEucGRm",
     "checksum": "8578201cf22b83bdaef44e1c5a5dc2e764218aa8"
 }
 </code></pre>
+
 
 <h4>
 <a id="voorbeeld-request-succes-1" class="anchor" href="#voorbeeld-request-succes-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request succes:</h4>
@@ -193,10 +210,9 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 
 {
     "status" : 200,
-    "message" : "File deleted"
+    "message" : "Deleted the file within 63ms"
 }
 </code></pre>
-
 <h4>
 <a id="voorbeeld-request-error-1" class="anchor" href="#voorbeeld-request-error-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request error:</h4>
 
@@ -208,21 +224,39 @@ De client kan dit ook voorkomen door eerst de nieuwste bestanden op te halen voo
 }
 </code></pre>
 
+<h4>
+<a id="voorbeeld-request-error-1" class="anchor" href="#voorbeeld-request-error-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Voorbeeld request error:</h4>
+
+<pre><code>RESPONSE idh14sync/1.0
+
+{
+    "status" : 412,
+    "message" : "You are trying to delete an older version of a document"
+}
+</code></pre>
+
+
 <br><br>
 <h3>Statuscodes</h3>
 <p>Er wordt gebruik gemaakt van de offici&euml;le HTTP-statuscodes. Deze zijn <a href="https://nl.wikipedia.org/wiki/Lijst_van_HTTP-statuscodes">hier</a> te vinden. Indien een code gebruikt gaat worden dient deze hier toegelicht te worden.</p>
 
 <h4><a name="200">200</a></h4>
-<p>Alles goed.</p>
+<p>Request is juist afgehandeld</p>
 
 <h4><a name="400">400</a></h4>
 <p>???</p>
 
 <h4><a name="404">404</a></h4>
-<p>Niet gevonden.</p>
+<p>Opgevraagd item niet gevonden</p>
 
 <h4><a name="412">412</a></h4>
-<p>Bestand conflicteert. Upload met andere bestandsnaam.</p>
+<p>Versie conflicteert
+<br><br>
+<i><b>Mogelijke afhandeling:</b><br>
+Pull-request: wijzigingen eerst aanbieden als put-request<br>
+Put-request: huidige versie als nieuw bestand (andere bestandsnaam) aanbieden, huidige bestand updaten<br>
+
+</p>
 
 
       </section>
